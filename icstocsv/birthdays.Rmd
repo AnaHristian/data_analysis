@@ -1,0 +1,101 @@
+## Investigate the distribution of your friends birth months and days.
+
+**********************************************************************
+
+
+How many people have the same birthday as you?
+
+Which month contains the most number of birthdays?
+
+How many birthdays are in each month?
+
+Which day of the year has the most number of birthdays?
+
+Do you have at least 365 friends that have birthdays on everyday of the year?
+
+**********************************************************************
+
+1. You'll need to export your Facebooks friends' birthdays to a csv file.
+You may need to create a calendar of your Facebook friends' birthdays in a program like Outlook or Gmail and then export the calendar as a csv file.
+2. Once you load the data into R Studio, you can use the strptime() function to extract the birth months and birth days. We recommend looking up the documentation for the function and finding examples online.
+3. [Download Your Friends' Birthdays from Facebook](https://www.facebook.com/help/152652248136178/)
+4. [Date Formats in R](https://www.r-bloggers.com/date-formats-in-r/)
+5. [Export a Google Calendar](https://support.google.com/calendar/answer/37111?hl=en)
+6. [Google Calendar to Excel: Free Trial](https://www.gcal2excel.com/)
+
+```{r read data}
+bdays <- read.csv("fb_bdays.csv")
+bdays$bday <- as.Date(bdays$bday )
+```
+
+## Including Plots
+
+
+
+```{r }
+library(ggplot2)
+ggplot(aes(x = bday), data = bdays) +
+  geom_histogram(binwidth = 12)
+```
+
+### Histogram of Birthdays by Month 
+
+### How many birthdays are in each month?
+
+```{r Birthdays by Month}
+library(ggplot2)
+ggplot(aes(x = month), data = bdays) +
+  geom_histogram(color = 'black', fill = '#099DD9', binwidth = 1) + 
+  scale_x_continuous(breaks = 0:12)
+```
+
+```{r}
+table(bdays$month)
+```
+
+We can see that the spike of the distribution is in December with 51 birthdays. 
+
+### Histogram of Birthdays by Days 
+
+```{r Birthdays by Month and Days}
+ggplot(aes(x = day), data = bdays) +
+  geom_histogram(color = 'black', fill = '#099DD9', binwidth = 1) +
+  scale_x_continuous(breaks = 1:31)
+```
+
+From the above histogram we can see that 17 is the day with highest frequency, while the 16th day has the lowest frequency.
+
+### Histogram of Birthdays by Days and Months
+
+Let's break the the histogram into twelve histograms, one for each month of the year.
+
+
+```{r}
+ggplot(aes(x = day), data = bdays) +
+  geom_histogram(color = 'black', fill = '#099DD9', binwidth = 1) +
+  scale_x_continuous(breaks = 1:31) +
+  facet_wrap(~month, ncol = 3)
+ggsave('monthHistogram.png')
+```
+
+
+### How many people have the same birthday as you?
+```{r}
+dim(subset(bdays, bdays$bday == "2019-03-25" & bdays$name != "Ana Hristian"))[1]
+```
+
+So, only one friend has the same birthday as me.
+
+### Which month contains the most number of birthdays?
+
+December
+
+# Which day of the year has the most number of birthdays?
+
+```{r}
+table(bdays$day)
+```
+
+17 has 21 birthdays
+
+
