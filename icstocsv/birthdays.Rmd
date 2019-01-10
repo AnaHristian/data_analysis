@@ -21,7 +21,7 @@ You may need to create a calendar of your Facebook friends' birthdays in a progr
 3. [Download Your Friends' Birthdays from Facebook](https://www.facebook.com/help/152652248136178/)
 4. [Date Formats in R](https://www.r-bloggers.com/date-formats-in-r/)
 5. [Export a Google Calendar](https://support.google.com/calendar/answer/37111?hl=en)
-6. Pass the file to the `icsv` function
+6. Pass the `ics` to the `icstocsv` function to get the `csv` file
 
 ```{r read data}
 bdays <- read.csv("fb_bdays.csv")
