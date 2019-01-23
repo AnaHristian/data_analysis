@@ -1,0 +1,80 @@
+```{r}
+# load the data
+reddit <- read.csv('reddit.csv')
+# compactly display the internal structure of an R object
+str(reddit)
+```
+
+```{r}
+#  build a contingency table of the counts at each 
+# combination of employment.status factor levels
+table(reddit$employment.status)
+```
+```{r}
+# let's get the summaries for each variable 
+summary(reddit)
+```
+```{r}
+# get the levels for the age.range factor variable
+levels(reddit$age.range)
+```
+```{r}
+library(ggplot2)
+
+# create a plot that shows how many users are in each bin
+qplot(data = reddit, x = age.range)
+```
+
+### Setting Levels of Ordered Factors
+
+Let's order the factor levels in the `age.range` variable in order to create a graph with a natural order. 
+
+We will modify the variable in the data frame. That is modify reddit$age.range. Don't create a new variable.
+
+The levels of age.range should take on these values: "Under 18", "18-24", "25-34", "35-44", "45-54", "55-64", "65 or Above"
+
+[Learn how to set and order factor levels](https://stats.idre.ucla.edu/r/modules/factor-variables/)
+
+
+```{r}
+is.factor(reddit$age.range)
+```
+
+```{r}
+# check the levels
+c(levels(reddit$age.range))
+```
+ 
+```{r}
+# create the correct order of categories.
+reddit$age.range <- factor(reddit$age.range, levels = c("Under 18", "18-24", "25-34", "35-44", "45-54", "55-64","65 or Above"), ordered = T)
+is.factor(reddit$age.range)
+levels(reddit$age.range)
+```
+
+```{r}
+# Creating ordered factor variables second approach
+reddit$age.range  <- ordered(reddit$age.range, levels = c("Under 18", "18-24", "25-34", "35-44", "45-54", "55-64","65 or Above"))
+is.factor(reddit$age.range)
+#age.range.order
+```
+
+```{r}
+# use ordered factors to make more readeble plots
+qplot(data = reddit, x = age.range)
+```
+
+```{r}
+levels(reddit$income.range)
+```
+
+```{r}
+# Setting levels in Ordered Factors Solution
+reddit$income.range  <- ordered(reddit$income.range, levels = c("Under $20,000" , "$20,000 - $29,999", "$30,000 - $39,999",  "$40,000 - $49,999", "$50,000 - $69,999", "$70,000 - $99,999", "$100,000 - $149,999", "$150,000 or more"))
+```
+
+```{r}
+qplot(data = reddit, x = income.range)
+```
+
+
