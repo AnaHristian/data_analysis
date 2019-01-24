@@ -1,0 +1,94 @@
+
+### A Bigger, Better Data Set
+Notes:
+
+1. Use a Python script to get the current diamond price data, similar to the original diamonds data set.
+2. Features of diamonds from all over the world.
+
+
+```{r A Bigger, Better Data Set}
+#install.packages('bitops')
+#install.packages('RCurl')
+library(ggplot2)
+library(bitops)
+library(RCurl)
+
+load("BigDiamonds.rda")
+
+str(diamondsbig)
+```
+
+The code used to obtain the data is available here:
+https://github.com/solomonm/diamonds-data
+
+## Building a Model Using the Big Diamonds Data Set
+Notes:
+
+Your task is to build five linear models like Solomon did for the diamonds data set only this time you'll use a sample of diamonds from the diamondsbig data set.
+
+Be sure to make use of the same variables (logprice, carat, etc.) and model names (m1, m2, m3, m4, m5).
+
+To get the diamondsbig data into RStudio on your machine, copy, paste, and run the code in the Instructor Notes. There's 598,024 diamonds in this data set!
+
+Since the data set is so large, you are going to use a sample of the data set to compute the models. You can use the entire data set on your machine which will produce slightly different coefficients and statistics for the models.
+
+```{r}
+diamondsbig$logprice <- log(diamondsbig$price)
+```
+
+Setting price by diamonds price is less than 10000 dollars and certificate is G.I.A.
+
+```{r Building a Model Using the Big Diamonds Data Set}
+#Be sure you've loaded the library memisc and have m5 saved as an object in your workspace.
+library(memisc)
+m1 <- lm(logprice ~ I(carat^(1/3)), 
+         data = diamondsbig[diamondsbig$price < 10000 &
+                              diamondsbig$cert =="GIA",])
+m2 <- update(m1, ~ . + carat)
+m3 <- update(m2, ~ . + cut)
+m4 <- update(m3, ~ . + color)
+m5 <- update(m4, ~ . + clarity)
+mtable(m1, m2, m3, m4, m5, sdigits = 3)
+```
+
+## Predictions
+
+Example Diamond from BlueNile:
+Round 1.00 Very Good I VS1 $5,601
+
+We need to exponentiate the result of our model, since we took the log of price.
+
+```{r}
+thisDiamond = data.frame(carat = 1.00, cut = "V.Good",
+                         color = "I", clarity="VS1")
+modelEstimate = predict(m5, newdata = thisDiamond,
+                        interval="prediction", level = .95)
+exp(modelEstimate)
+```
+
+Evaluate how well the model predicts the BlueNile diamond's price. Think about the fitted point estimate as well as the 95% CI.
+
+The results yield an expected value for price, given the characteristics of our diamond and the upper and lower bounds of a 95% confidence interval. This is a linear model, predict is just multiplying each model coefficient by each value in our data. Maybe our source of the data is 
+
+
+We see that the model predicts that the price for the diamond is 5040, while the actual price is 5601 dollars. The prediction is in our confidence interval.
+
+The prediction interval here may be slightly conservative, as the model errors are heteroskedastic over carat (and hence price) even after our log and cube-root transformations. BlueNile has a better reputation than `http://www.diamondse.info/` So, while this model might give you a sense of wether your diamond is a ripoff against `http://www.diamondse.info/`, this shouldn't be regarded as the universal sourve of thruth about wether the price of a diamond is reasonable.
+
+See the output of the following code.
+
+```{r}
+dat = data.frame(m4$model, m4$residuals)
+
+with(dat, sd(m4.residuals))
+
+with(subset(dat, carat > .9 & carat < 1.1), sd(m4.residuals))
+
+dat$resid <- as.numeric(dat$m4.residuals)
+ggplot(aes(y = resid, x = round(carat, 2)), data = dat) +
+  geom_line(stat = "summary", fun.y = sd)
+```
+
+You can use a model like this to find out where you are overpaying. A diamond at [Tiffany is more expensive than at Costo](https://www.bloomberg.com/news/articles/2013-05-06/tiffany-vs-dot-costco-which-diamond-ring-is-better) but But Costco Sells Pricy Diamonds Too
+
+[How to analyze your Facebook friends network with R](https://blog.revolutionanalytics.com/2013/11/how-to-analyze-you-facebook-friends-network-with-r.html)
