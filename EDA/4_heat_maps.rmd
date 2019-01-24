@@ -1,0 +1,60 @@
+### Even More Variables
+Notes:
+
+A scatterplot is extremely helpful when we have more variables like the genomic data. There are thousands of genetic measurements for each of a small number of samples. In some samples, they have a disease so we'd like to identify genes associated with the disease.
+
+- The `nci` is a data set of gene expression in tumors.
+- The data, Micro-array/Gene Expression Data, contains the expression of 6930 genes, compared with a larger baseline reference sample.
+- Change the column names of the data set to be the numbers from 1-64
+
+```{r}
+library(ggplot2)
+nci <- read.table("nci.tsv")
+# changing the colnames to produce a nicer plot
+colnames(nci) <- c(1:64)
+```
+
+***
+
+### Heat Maps
+Notes:
+
+[Melt data frames in R ](https://www.r-bloggers.com/melt/)
+
+- We want to display each combination of genes and sample case, the difference in gene expression and the sample from the base line.
+- We want to display combinations where a gene is over expressed in red;
+- in combinations where it's under expressed in blue.
+- `scale_fill_gradient` gives us a scale gradient;
+- We are showing the first 200 genes of over 6000 of them and genomic data sets of these kind, sometimes called micro data are only getting larger
+
+
+```{r}
+library(reshape2)
+nci.long.samp <- melt(as.matrix(nci[1:200,]))
+names(nci.long.samp) <- c("gene", "case", "value")
+head(nci.long.samp)
+
+ggplot(aes(y = gene, x = case, fill = value),
+  data = nci.long.samp) +
+  geom_tile() +
+  scale_fill_gradientn(colours = colorRampPalette(c("blue", "red"))(100))
+```
+
+They are also used in randomized experiments. 
+
+- Where in the simplest versions, users are randomly assigned to a treatment like a new version of a website, some sort of a new feature, some sort of new feature or product or a control codition.
+- The difference in outcome between the treatment and control can
+ 
+ 
+### Analyzing Three of More Variables
+Reflection:
+
+By adding more levels to our visualizations we can discover more meaningful, hidden patterns, we can better understand the data. We can look at patterns across many variables at once. 
+
+- Simple extensions to the scatter plot and plots of conditional summaries (adding summaries for multiple groups);
+- Techniques for examining a large number of variables at once such as scatter plot matrices and heat maps.
+- Reshape data, moving from raw data with one row per case, to aggregate data with one row per combination of variables (long and wide formats for our data).
+
+***
+
+

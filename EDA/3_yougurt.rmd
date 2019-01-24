@@ -1,0 +1,161 @@
+### Introducing the Yogurt Data Set
+Notes:
+
+1. [Bayesian Statistics and Marketing](http://www.perossi.org/home/bsm-1) contains the data set and a case study on it.
+2. The citation for the original paper on the yogurt data set is Kim, Jaehwan, Greg M. Allenby, and Peter E. Rossi. "Modeling consumer demand for variety." Marketing Science 21.3 (2002): 229-250.
+3. A special thanks to Professor Allenby for helping us understand this data set.
+4. To learn more about scanner data, check out Panel Data Discrete Choice Models of Consumer Demand.
+5. A data set describing household purchases of five flavors of Dannon yogurt in the eight-ounce size.
+6 The yogurt data has many rows per household, one for each purchase occasion.
+
+***
+
+### Histograms Revisited
+Notes:
+
+Let's look at the structure and the summary of the  yogurt data set.
+
+```{r}
+library(ggplot2)
+yo <- read.csv('yogurt.csv')
+
+names(yo)
+#change the id from an int to a factor
+yo$id <- factor(yo$id)
+str(yo)
+```
+
+- We have 9 variables and 2380 observations in our dataframe;
+- The observations are for households that buy Dannon yogurt over time;
+- I converted `id` into a factor variable and we can see it has 332 levels;
+- Let's create a histogram of the yougurt prices;
+
+```{r Histograms Revisited}
+summary(yo$price)
+ggplot(aes(x = price), data = yo) +
+  geom_histogram(binwidth = 1) +
+  scale_x_continuous(breaks = seq(20,70, 2))
+```
+
+We can notice the discreetness of this distribution. There are prices with many observations but then no observations in adjacent prices. In the above histogram of Yogurt Prices we can see that most bought yogurts have a price higher than 50 units. The spike of our data is at 65 units with around 800 yogurts. The minimum price per yogurt is 20 units.
+
+We might obscure the discreetness with a different bin size. But we would miss the observation for some of the empty spaces for the adjacent prices.
+
+***
+
+### Number of Purchases
+Notes:
+
+```{r Number of Purchases}
+summary(yo)
+# number of distinct prices
+length(unique(yo$price))
+# distribution
+table(yo$price)
+```
+
+- One clue of the price discreetnes is that the 3rd Quantile is the same as the maximum.
+- We can also check how many distinct prices there are and we can see that there are only 20 diffferent prices.
+- Tabling the variable we get an idea of the distribution like we saw on the histogram.
+
+How many yogurt does a household purchase?
+
+- We need to combine accounts of the different yogurt flavors into one variable.
+- Create a new variable called `all.purchases`, which gives the total counts of yogurt for each observation or household.
+- One way to do this is using the `transform` function. Takes in a dataframe and it allows us to recombine variables that are already in the dataframe.
+- The transform function produces a data frame so if you use it then save the result to 'yo'!
+
+```{r All Purchases}
+yo$all.purchases <- (yo$strawberry + yo$blueberry + 
+                       yo$pina.colada + yo$plain +
+                       yo$mixed.berry)
+yo <- transform(yo, all.purchases = strawberry + blueberry + 
+                       pina.colada + plain + yo$mixed.berry)
+
+summary(yo$all.purchases)
+```
+
+```{r}
+ggplot(aes(x = all.purchases), data = yo) +
+  geom_histogram(binwidth = 1)
+```
+
+This histogram reveals that most households buy one or two yogurts at a time.
+
+***
+
+### Prices over Time
+Notes:
+
+Let's investigate the price over time by creating o scatterplot of price versus time.
+
+```{r}
+length(unique(yo$time))
+summary(yo$time)
+yo$days <- ceiling(yo$time/24) - 402
+length(unique(yo$days))
+table(yo$days)
+```
+
+We can see that there are 34 unique days.
+
+
+```{r}
+ggplot(aes(x = days), data = yo) +
+  geom_histogram(binwidth = 1)
+```
+
+
+```{r Prices over Time}
+ggplot(aes(x = time, y = price), data = yo) +
+  geom_jitter(alpha = 1/4, shape = 21, fill = I('#F79420'))
+```
+
+We can see that the modal of the most common prices seem to be increasing over time.
+
+***
+
+### Sampling Observations
+Notes:
+
+It is often usefull to work with a  sample of those units so that it is easy to display the raw data for that sample. We might want to look at a small smaple of households in more detail so that we know what kind of within and between household variation.
+
+***
+
+### Looking at Samples of Households
+
+```{r Looking at Sample of Households}
+set.seed(4230)
+sample.ids <- sample(levels(yo$id), 16)
+
+ggplot(aes(x = time, y = price),
+       data = subset(yo, id %in% sample.ids)) +
+  facet_wrap( ~ id ) +
+  geom_line() +
+  geom_point(aes(size = all.purchases), pch = 1)
+```
+
+We can see the variation and how often each household buys yogurt. Some households buys larger quantities than other. Some of the households may use coupons which draws the price down. But in general, the price increases over time.
+
+```{r}
+set.seed(654320)
+sample.ids <- sample(levels(yo$id), 16)
+
+ggplot(aes(x = time, y = price),
+       data = subset(yo, id %in% sample.ids)) +
+  facet_wrap( ~ id ) +
+  geom_line() +
+  geom_point(aes(size = all.purchases), pch = 1)
+```
+
+***
+
+### The Limits of Cross Sectional Data
+
+Notes: 
+
+If we have observations over time, we can facet by the primary unit case or individual in the data set. For our yogurt data set it was the households we were faceting over.
+
+
+***
+
