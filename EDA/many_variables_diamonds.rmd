@@ -1,0 +1,85 @@
+
+Lesson 7 Explore Many Variables
+========================================================
+
+Practice using multivariate techniques to look at more complicated relationships between multiple variables, and find out how to reshape your data.
+
+## Price Histograms with Facets and Color
+
+- Create a histogram of diamond prices.
+- Facet the histogram by diamond color and use cut to color the histogram bars.
+- Use a color palette of type 'qual' was used to color the histogram using `scale_fill_brewer(type = 'qual')`
+
+```{r cars}
+library(ggplot2)
+
+data(diamonds)
+#theme_set(theme_minimal(10))
+summary(diamonds$price)
+```
+
+```{r Price Histograms with Facets and Color}
+ggplot(aes(x = log(price)), data = diamonds) +
+  geom_histogram(aes(color = cut)) +
+  scale_fill_brewer(type = 'qual') +
+  facet_wrap(~ color, ncol = 3) 
+```
+
+
+***
+
+## Price vs. Table Colored by Cut
+
+Create a scatterplot of diamond price vs.table and color the points by the cut of the diamond.
+
+```{r Price vs. Table Colored by Cut}
+ggplot(aes(x = table, y = price), data = diamonds) +
+  geom_point(aes(color = cut)) +
+  scale_fill_brewer(type = 'qual') +
+  scale_x_continuous(breaks = seq(50, 80, 2)) +
+  coord_cartesian(xlim = c(50, 80))
+```
+
+
+***
+
+## Tipical Table Value
+
+What is the typical table range for the majority of diamonds of ideal cut? 53-57
+
+
+What is the typical table range for the majority of diamonds of premium cut? 58-62
+
+***
+
+## Price vs. Volume and Diamond Clarity
+
+- Create a scatterplot of diamond price vs. volume (x * y * z) and color the points by the clarity of diamonds. 
+- Use scale on the y-axis to take the log10 of price. 
+- You should also omit the top 1% of diamond volumes from the plot.
+
+```{r}
+# create volume variable in the dataframe
+diamonds <- transform(diamonds, volume = x * y * z)
+ggplot(aes(x = volume, y = price), data = diamonds) +
+  geom_point(aes(color = clarity)) +
+  scale_color_brewer(type = 'div') +
+  xlim(0, quantile(diamonds$volume, 0.99)) +
+  scale_y_log10()
+```
+
+***
+
+## Price/Carat Binned, Faceted & Colored
+
+Create a scatter plot of the price/carat ratio of diamonds. The variable x should be assigned to cut. The points should be colored by diamond color, and the plot should be faceted by clarity.
+
+```{r Price/Carat Binned, Faceted & Colored}
+ggplot(aes(x = cut, y = price/carat), data = diamonds) +
+  geom_point(aes(color = color)) +
+  scale_color_brewer(type = 'div') +
+  facet_wrap(~ clarity, ncol = 2) 
+```
+
+
+***
