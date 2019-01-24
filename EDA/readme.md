@@ -32,7 +32,7 @@ Learn to explore data at multiple levels using appropriate visualizations, acqui
 ## #6 Explore Many Variables
 
 - Learn powerful methods for examining relationships among multiple variables, and find out how to reshape your data.
-- For this lesson take a look at `many_variables.rmd` file.
+- For this lesson take a look at `many_variables.rmd`, `3_yougurt.rmd and `4_heat_maps.rmd` files.
 
 ## #7 Problem Set: Explore Many Variables
 
