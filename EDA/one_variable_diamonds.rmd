@@ -1,0 +1,279 @@
+Explore One Variable
+========================================================
+
+***
+
+### Diamonds
+Notes:
+
+`setwd("e:/_deep_learning/_data_analysis/6. EDA/lesson4")`
+Load the `diamonds` data set:
+
+1. Must load the `ggplot` package first.
+2. Loads the `diamonds` data set since it comes with the `ggplot` package.
+3. Check all the variables.
+4. Check some statistics.
+
+There are other data sets that come with R: 
+
+- You can load these data sets by typing the command `data(DATA_SET_NAME)`.
+- You can learn more about the diamonds data set by typing ?diamonds.
+- Read the help file to determine the best color for the diamonds data set. When you run diamonds$color, you will notice that the levels of color are set as D < E < F < ...
+- This does not indicate that D is the worst color but rather an ordering to the colors.
+
+```{r Diamonds}
+library(ggplot2) 
+data(diamonds)
+names(diamonds)
+summary(diamonds)
+#?diamonds
+```
+
+***
+
+#### How many observations are in the data set?
+Response: 53940.
+
+```{r Observations}
+dim(diamonds)[1]
+```
+
+***
+
+#### How many variables are in the data set?
+Response: 10
+
+```{r Variables}
+dim(diamonds)[2]
+```
+
+***
+
+#### How many ordered factors are in the data set?
+Response: `cut`, `color`, `clarity`
+
+```{r Ordered Factors}
+str(diamonds)
+```
+
+***
+
+#### What level represents the best color for a diamond?
+
+Response: D
+
+```{r Color}
+levels(diamonds$color)
+```
+
+***
+
+### Price histogram
+
+Notes:
+
+```{r Price histogram}
+pf <- diamonds
+summary(pf$price)
+library(ggplot2)
+qplot(x = price, data = pf, binwidth = 100) +
+  scale_x_continuous(limits = c(0, 18823), breaks = seq(0, 18823, 1250))
+```
+
+***
+
+#### Describe the shape and center of the price distribution?
+Response:
+
+From the diamond price histogram we can see that the distribution is right-skewed. Therefore, the median is a more representative statistic than the mean, it is more resistant to change since it marks the halfway point for all data points. The median price for diamonds is 2401 dollars while the average price is higher at 3933 dollars. This is because the more extreme datapoints pull the mean to the right of the distribution. The 1st Quartile for diamond prices is 950 dollars and the 3rd Quartile is 5324. This means that 75% of the diamonds in the dataset have a price below 5324 US dollars.
+
+***
+
+### ggplot Syntax
+Notes:
+
+```{r ggplot Syntax}
+library(ggplot2)
+ggplot(aes(x = price), data = pf) +
+  geom_histogram(binwidth = 100) +
+  scale_x_continuous(limits = c(0, 15000), breaks = seq(0, 15000, 1000))
+```
+
+***
+
+### Diamond Counts
+Notes:
+
+```{r Diamond Counts}
+summary(pf$price)
+```
+
+#### How many diamonds cost less than $500? How many diamonds cost less than $250? How many diamonds cost $15000 or more?
+Response:
+```{r Diamond Counts 1}
+summary(pf$price < 500)
+summary(pf$price < 250)
+summary(pf$price >= 15000)
+```
+
+
+***
+
+### Cheaper Diamonds
+Notes:
+
+Explore the largest peak in the price histogram you created earlier.
+
+```{r Cheaper Diamonds}
+library(ggplot2)
+ggplot(aes(x = price), data = pf) +
+  geom_histogram(binwidth = 100) +
+  scale_x_continuous(limits = c(950, 5324), breaks = seq(950, 5324, 250))
+ggsave('priceHistogram.png')
+```
+
+#### Price by Cut Histograms
+
+Break out the histogram of diamond prices by cut.
+
+```{r}
+ggplot(aes(x = price), data = pf) +
+  geom_histogram(binwidth = 100) +
+  scale_x_continuous(limits = c(0, 15000), breaks = seq(0, 15000, 1000)) +
+  facet_wrap(~cut, ncol = 1)
+ggsave('priceHistogramCut.png')
+```
+
+### Statistics Price by Cut?
+
+```{r Price by Cut}
+by(pf$price, pf$cut, summary)
+```
+
+#### Which cut has the highest priced diamond?
+Response: Premium
+
+#### Which cut has the lowest priced diamond?
+Response: Premium and Ideal
+
+#### Which cut has the lowest median price?
+Response: Ideal
+
+***
+
+### Scales and Mutliple Histograms
+Notes:
+
+The Price by Cut distributions should be somewhat similar, but the histograms we created don't show that. The 'Fair' and 'Good' diamonds appear to have different distributions compared to the better cut diamonds. They seem somewhat uniform on the left with long tails on the right.
+
+Let's look into this more.
+
+- Look up the documentation for facet_wrap in R Studio.
+- Then, scroll back up and add a parameter to facet_wrap so that the y-axis in the histograms is not fixed. You want the y-axis to be different for each histogram.
+- Read about [free scales](http://www.cookbook-r.com/Graphs/Facets_(ggplot2)/)
+
+```{r Scales and Mutliple Histograms}
+ggplot(aes(x = price), data = pf) +
+  geom_histogram(binwidth = 100) +
+  scale_x_continuous(limits = c(0, 15000), breaks = seq(0, 15000, 1000)) +
+  facet_wrap(~cut, ncol = 1, scales = "free_y")
+ggsave('priceHistogramCutScales.png')
+```
+
+***
+
+### Price per Carat by Cut
+Notes:
+
+Create a histogram of price per carat and facet it by cut: 
+- You can make adjustments to the code from the previous exercise to get started.
+- Adjust the bin width and transform the scale of the x-axis using log10.
+
+```{r Price per carat}
+ggplot(aes(x = price/carat), data = pf) +
+  geom_histogram() +
+  scale_x_log10() +
+  facet_wrap(~cut, ncol = 1, scales = "free_y") 
+ggsave('priceHistogramCutCarat.png')
+```
+
+There are some normal-ish distributions and a slightly bimodal distribution for Very Good cuts.
+
+***
+
+### Price Box Plots
+Notes:
+
+Investigate the price of diamonds using box plots, numerical summaries, and one of the following categorical variables: cut, clarity, or color.
+
+```{r Box Plots by Cut}
+by(pf$price, pf$cut, summary)
+
+qplot(x = cut, y = price,
+      data = pf,
+      geom = 'boxplot') +
+  coord_cartesian(ylim = c(0, 6300))
+```
+
+
+```{r Box Plots by Clarity}
+by(pf$price, pf$clarity, summary)
+
+qplot(x = clarity, y = price,
+      data = pf,
+      geom = 'boxplot') +
+  coord_cartesian(ylim = c(0, 6300))
+```
+
+```{r Box Plots by Color}
+by(pf$price, pf$color, summary)
+
+qplot(x = color, y = price,
+      data = pf,
+      geom = 'boxplot') +
+  coord_cartesian(ylim = c(0, 7700))
+```
+
+***
+
+### Interquartile Range - IQR
+Notes:
+
+What is the price range for the middle 50% of diamonds with color D?
+first quartile (25%): 911
+third quartile (75%): 4214
+
+What is the price range for the middle 50% of diamonds with color J?
+first quartile (25%): 1860
+third quartile (75%): 7695
+
+What is the IQR for diamonds with best color?
+IQR D: 3302.5
+
+What is the IQR for diamonds with worst color?
+IQR J: 5834.5
+
+```{r IQR}
+IQR(subset(pf, color == "D")$price)
+IQR(subset(pf, color == "J")$price)
+```
+
+***
+
+### Carat Frequency Polygon
+Notes:
+Investigate the weight of the diamonds (carat) using a frequency poygon.
+
+
+
+```{r Carat Frequency Polygon}
+ggplot(aes(x = carat), data = pf) +
+  geom_freqpoly() +
+  scale_x_log10()
+```
+
+## What carat size has a count greater than 2000?
+ 
+0.3, 1.01 
+
+***
